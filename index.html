@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>City Search</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+	<div class="wrapper">
+		<div class="search-div">
+			<input type="search" name="search-input" class="search-bar" placeholder="type city/state name...">
+		</div>
+		<div class="results-div">
+			<ul class="results">
+				<li><span>Results</span><span>Population</span></li>
+			</ul>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var jsonAddress = "https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json";
+		let cities = [];
+		fetch(jsonAddress)
+		.then(rawData => rawData.json())
+		.then(data => cities.push(...data));
+		console.log(cities);
+		function findCityMatches(searchQuery) {
+			return cities.filter(place => {
+				const regex = new RegExp(searchQuery, "gi");
+				return place.city.match(regex) || place.state.match(regex);
+			});
+		}
+		function displayMatches() {
+			console.log(this.value);
+			const matchesArray = findCityMatches(this.value);
+			console.log(matchesArray);
+			const html = matchesArray.map(match =>  {
+				const regex = new RegExp(this.value, "gi");
+				const cityName = match.city.replace(regex, `<span class="hl">${this.value}</span>`);
+				const stateName = match.state.replace(regex, `<span class="hl">${this.value}</span>`);
+				console.log(cityName);
+				return `<li>
+					<span class="city-name">${cityName}, ${stateName}</span>
+					<span class="population">${match.population}</span>
+					</li>`;
+			}).join('');
+			console.log("html = " + html);
+			displayArea.innerHTML = html;
+		}
+		const searchBar = document.querySelector(".search-bar");
+		const displayArea = document.querySelector(".results");
+		
+		searchBar.addEventListener("change", displayMatches);
+		searchBar.addEventListener("keyup", displayMatches);
+
+	</script>
+</body>
+</html>
